@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@uniswap/lib/contracts/libraries/TransferHelper.sol";
 import "./interface/IAirDrop.sol";
 
 contract AirDrop is OwnableUpgradeable, IAirDrop {
-    address public token;
+    IERC20 public token;
 
     bytes32 public merkleRoot;
     uint32 nonce;
@@ -19,22 +19,32 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
     function initialize(address token_) public virtual initializer {
         if (token_ == address(0)) revert WrongToken();
         __Ownable_init();
-        token = token_;
+        token = IERC20(token_);
     }
 
-    function charge(bytes32 merkleRoot_, uint256 amount_) external override onlyOwner {
+    function charge(bytes32 merkleRoot_, uint256 amount_)
+        external
+        override
+        onlyOwner
+    {
         merkleRoot = merkleRoot_;
         nonce++;
+
+        uint256 balance = token.balanceOf(address(this));
         TransferHelper.safeTransferFrom(
-            token,
+            address(token),
             msg.sender,
             address(this),
-            amount_
+            amount_ > balance ? amount_ - balance : 0
         );
+        
         emit Charged(amount_);
     }
 
-    function claim(bytes32[] calldata merkleProof_, uint256 amount_) external override {
+    function claim(bytes32[] calldata merkleProof_, uint256 amount_)
+        external
+        override
+    {
         if (
             !MerkleProof.verify(
                 merkleProof_,
@@ -46,7 +56,7 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
 
         claimed[msg.sender] = nonce;
 
-        TransferHelper.safeTransfer(token, msg.sender, amount_);
+        TransferHelper.safeTransfer(address(token), msg.sender, amount_);
 
         emit Claimed(msg.sender, amount_);
     }
