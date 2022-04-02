@@ -12,6 +12,8 @@ interface IAirDrop {
 
     error WrongToken();
 
+    error AmountMustNotBeZero();
+
     error IncorrectData();
     error AlreadyClaimed();
 }

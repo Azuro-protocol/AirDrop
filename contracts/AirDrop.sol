@@ -16,17 +16,29 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
 
     mapping(address => uint32) public claimed;
 
+    /**
+     * @param  token_ address of the token used in drops
+     */
     function initialize(address token_) public virtual initializer {
         if (token_ == address(0)) revert WrongToken();
+
         __Ownable_init();
         token = IERC20(token_);
     }
 
+    /**
+     * @notice  Release new drop of `amount_` tokens
+     * @param   merkleRoot_ root of Merkle's tree where every leaf is hashed with keccak-256 52-bytes record [reward|address]
+     *          (see https://en.wikipedia.org/wiki/Merkle_tree)                                                 ^32B   ^20B
+     * @param   amount_ total drop amount
+     */
     function charge(bytes32 merkleRoot_, uint256 amount_)
         external
         override
         onlyOwner
     {
+        if (amount_ == 0) revert AmountMustNotBeZero();
+
         merkleRoot = merkleRoot_;
         nonce++;
 
@@ -37,10 +49,16 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
             address(this),
             amount_ > balance ? amount_ - balance : 0
         );
-        
+
         emit Charged(amount_);
     }
 
+    /**
+     * @notice  Get `amount_` of tokens from current drop
+     * @param   merkleProof_ Merkle's proof of rewarding `msg.sender` with `amount_` of tokens in the current drop
+     *                       (see https://en.wikipedia.org/wiki/Merkle_tree)
+     * @param   amount_ drop amount
+     */
     function claim(bytes32[] calldata merkleProof_, uint256 amount_)
         external
         override
