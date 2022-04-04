@@ -21,10 +21,6 @@ const prepareStand = async (ethers, owner) => {
   return [airDrop, usdt];
 };
 
-function tokens(val) {
-  return BigNumber.from(val).mul(BigNumber.from("10").pow(18));
-}
-
 const charge = async (airDrop, owner, merkleRoot, amount) => {
   return await airDrop.connect(owner).charge(merkleRoot, amount);
 };
@@ -57,7 +53,7 @@ const newDrop = async (n) => {
 };
 
 function toHash(address, amount) {
-  return web3.utils.keccak256(web3.utils.encodePacked({ t: "uint256", v: amount }, { t: "address", v: address }));
+  return web3.utils.keccak256(web3.utils.encodePacked({ t: "address", v: address }, { t: "uint256", v: amount }));
 }
 
 describe("AirDrop test", function () {

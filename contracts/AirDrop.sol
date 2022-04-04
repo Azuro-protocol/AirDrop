@@ -28,8 +28,8 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
 
     /**
      * @notice  Release new drop of `amount_` tokens
-     * @param   merkleRoot_ root of Merkle's tree where every leaf is hashed with keccak-256 52-bytes record [reward|address]
-     *          (see https://en.wikipedia.org/wiki/Merkle_tree)                                                 ^32B   ^20B
+     * @param   merkleRoot_ root of Merkle's tree where every leaf is hashed with keccak-256 52-bytes record [address|reward]
+     *          (see https://en.wikipedia.org/wiki/Merkle_tree)                                                 ^20B   ^32B
      * @param   amount_ total drop amount
      */
     function charge(bytes32 merkleRoot_, uint256 amount_)
@@ -67,7 +67,7 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
             !MerkleProof.verify(
                 merkleProof_,
                 merkleRoot,
-                keccak256(abi.encodePacked(amount_, msg.sender))
+                keccak256(abi.encodePacked(msg.sender, amount_))
             )
         ) revert IncorrectData();
         if (claimed[msg.sender] == nonce) revert AlreadyClaimed();
