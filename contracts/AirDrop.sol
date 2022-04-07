@@ -19,7 +19,7 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
     /**
      * @param  token_ address of the token used in drops
      */
-    function initialize(address token_) public virtual initializer {
+    function initialize(address token_) external virtual initializer {
         if (token_ == address(0)) revert WrongToken();
 
         __Ownable_init();
