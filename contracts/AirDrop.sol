@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@uniswap/lib/contracts/libraries/TransferHelper.sol";
 import "./interface/IAirDrop.sol";
 
+/// @title Azuro Farming
 contract AirDrop is OwnableUpgradeable, IAirDrop {
     IERC20 public token;
 
@@ -27,10 +28,10 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
     }
 
     /**
-     * @notice  Release new drop of `amount_` tokens
-     * @param   merkleRoot_ root of Merkle's tree where every leaf is hashed with keccak-256 52-bytes record [address|reward]
-     *          (see https://en.wikipedia.org/wiki/Merkle_tree)                                                 ^20B   ^32B
-     * @param   amount_ total drop amount
+     * @notice Release new drop of `amount_` tokens.
+     * @param  merkleRoot_ root of Merkle's tree where every leaf is hashed with keccak-256 52-bytes record [address|reward]
+     *         (see https://en.wikipedia.org/wiki/Merkle_tree)                                                 ^20B   ^32B
+     * @param  amount_ total drop amount
      */
     function charge(bytes32 merkleRoot_, uint256 amount_)
         external
@@ -54,10 +55,10 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
     }
 
     /**
-     * @notice  Get `amount_` of tokens from current drop
-     * @param   merkleProof_ Merkle's proof of rewarding `msg.sender` with `amount_` of tokens in the current drop
-     *                       (see https://en.wikipedia.org/wiki/Merkle_tree)
-     * @param   amount_ drop amount
+     * @notice Get `amount_` of tokens from current drop.
+     * @param  merkleProof_ Merkle's proof of rewarding `msg.sender` with `amount_` of tokens in the current drop
+     *                      (see https://en.wikipedia.org/wiki/Merkle_tree)
+     * @param  amount_ drop amount
      */
     function claim(bytes32[] calldata merkleProof_, uint256 amount_)
         external
