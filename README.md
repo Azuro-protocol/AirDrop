@@ -46,24 +46,14 @@ npm run node
    ```
    where **%network%** is name of network where you would like to upgrade your contract.
 
-## Rinkeby test network
+## Sokol test network
 ### Contracts
 ```
-AirDrop      0x7cb621cE38BBebFB2CC3f47F1cc45ce707F72e8e
-Impl         0xFbBcd127766aBB96065986e6787dfD8a0Ab375dD
-USDT         0xD741469Ca14b18B4A996679E4863783BAF7288C9
+AirDrop      0x553f721982F7108A0DaC7B8b61CabEFBC9237f66
+Impl         0xB70c2c171102B339AEf0BC0Dbc8B9057Ae9f14dd
+USDT         0xe39F07900f5222f2d69f1bf3842Ce4f047C0aAa2
 ```
 ### Test accounts
 ```
-Owner        0x5089e2dfad395c517dbce76af3f2491eab40174f
-PrivKey      2dd407af9978a25e03a3459591a0f942a0b979935dc96326b25ea1682e56ec6f
-
-Wallet1      0x20293b57ce29340C34e65324919F83782Fb69c6a
-PrivKey1     d9609229d953280f3fb071c7ac99597769b231618e74f5c6b5ce538a29b23aff
-
-Wallet2      0xE7Cd5b8E0Ea1E4136BE09DA14b94a9C3b8454E5F
-PrivKey2     7f1e0261cf7f60575e57f391a731c6447c71d34823e19a65e2c09a360aa3de13
-
-Wallet3      0x3cbd62EE6De8302F41fCFfF5852F35715265BaEF
-PrivKey3     b928bb5e371e10b77f4fb81a515cb6a5b6fb7881d3f96caa585bda7428921efd
-```
+Owner        0x36c8C25FA078Fcba503ca8AAC8B9a2F44220Df6A
+PrivKey      be68f37c0dfc9b2364d77df52a085ef63c990aff8df29b8ca8e7f1ddbb5d9015
