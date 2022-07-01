@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
     "docgen": "npx hardhat docgen",
     "size-contracts": "npx hardhat size-contracts",
