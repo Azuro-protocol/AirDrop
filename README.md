@@ -50,8 +50,8 @@ npm run node
 ### Contracts
 ```
 AirDrop      0x553f721982F7108A0DaC7B8b61CabEFBC9237f66
-Impl         0xB70c2c171102B339AEf0BC0Dbc8B9057Ae9f14dd
-USDT         0xe39F07900f5222f2d69f1bf3842Ce4f047C0aAa2
+Impl         0x82F75a05BdfCeD28919D60F38306e26305edd983
+USDT         0xC02Ed093F9eB2EAfffb5DC3AaB2276C8a80c2B39
 ```
 ### Test accounts
 ```
