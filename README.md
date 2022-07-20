@@ -57,3 +57,10 @@ USDT         0xC02Ed093F9eB2EAfffb5DC3AaB2276C8a80c2B39
 ```
 Owner        0x36c8C25FA078Fcba503ca8AAC8B9a2F44220Df6A
 PrivKey      be68f37c0dfc9b2364d77df52a085ef63c990aff8df29b8ca8e7f1ddbb5d9015
+```
+
+## Gnosis main network
+### Contracts
+```
+AirDrop      0xF7E4E73C66A0a0261E8230daD8e2E458b5bD35B7
+Impl         0x3656D53A11090B00408678af46544a8F5C0cd0FB
