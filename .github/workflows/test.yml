@@ -1,0 +1,33 @@
+name: Autotests
+
+on:
+  push:
+    branches:
+      - "stable"
+      - "v**"
+
+  pull_request:
+    branches:
+      - "stable"
+      - "v**"
+
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install nodejs
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Install packages
+        run: npm i
+
+      - name: Run tests
+        run: npm test
