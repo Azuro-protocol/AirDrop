@@ -21,15 +21,15 @@ const prepareStand = async (ethers, owner) => {
   return [airDrop, usdt];
 };
 
-const charge = async (airDrop, owner, merkleRoot, amount) => {
-  return await airDrop.connect(owner).charge(merkleRoot, amount);
+const release = async (airDrop, owner, merkleRoot, amount) => {
+  return await airDrop.connect(owner).release(merkleRoot, amount, []);
 };
 
 const claim = async (airDrop, user, merkleProof, amount) => {
   return await airDrop.connect(user).claim(merkleProof, amount);
 };
 
-const newDrop = async (n) => {
+const newRelease = async (n) => {
   let users = [],
     rewards = [],
     leaves = [],
@@ -71,9 +71,9 @@ describe("AirDrop test", function () {
 
     for (let i = 0; i < 5; i++) {
       n = Math.floor(Math.random() * 31 + 1);
-      [users, rewards, leaves, totalReward, tree] = await newDrop(n);
+      [users, rewards, leaves, totalReward, tree] = await newRelease(n);
 
-      await charge(airDrop, owner, tree.getHexRoot(), totalReward);
+      await release(airDrop, owner, tree.getHexRoot(), totalReward);
       for (k = 0; k < n; k++) {
         user = users[k];
         reward = rewards[k];
@@ -83,7 +83,7 @@ describe("AirDrop test", function () {
         await expect(claim(airDrop, user, tree.getHexProof(leaves[k]), reward)).to.be.revertedWith("AlreadyClaimed()");
         expect(await usdt.balanceOf(user.address)).to.be.equal(balance.add(reward));
       }
-      [users, rewards, leaves] = await newDrop(3); // these users have no reward
+      [users, rewards, leaves] = await newRelease(3); // these users have no reward
       for (k = 0; k < 3; k++) {
         user = users[k];
         reward = rewards[k];
@@ -91,13 +91,13 @@ describe("AirDrop test", function () {
 
         await expect(claim(airDrop, user, tree.getHexProof(leaves[k]), reward)).to.be.revertedWith("IncorrectData()");
       }
-      console.log("      √ 🌳");
+      console.log("      🌳");
     }
     expect(await usdt.balanceOf(airDrop.address)).to.be.equal(tokens(BigNumber.from(0)));
   });
-  it("Should NOT charge with zero amount", async () => {
-    [_, _, _, _, tree] = await newDrop(16);
+  it("Should NOT release with zero amount", async () => {
+    [_, _, _, _, tree] = await newRelease(16);
 
-    await expect(charge(airDrop, owner, tree.getHexRoot(), 0)).to.be.revertedWith("AmountMustNotBeZero()");
+    await expect(release(airDrop, owner, tree.getHexRoot(), 0)).to.be.revertedWith("AmountMustNotBeZero()");
   });
 });

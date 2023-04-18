@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.19;
 
 interface IAirDrop {
     event Claimed(address indexed claimer, uint256 amount);
-    event Charged(uint256 amount_);
+    event Released(uint256 amount);
 
-    function charge(bytes32 merkleRoot_, uint256 amount_) external;
-
-    function claim(bytes32[] calldata merkleProof_, uint256 amount_) external;
-
+    error AlreadyClaimed();
+    error AmountMustNotBeZero();
+    error IncorrectData();
     error WrongToken();
 
-    error AmountMustNotBeZero();
+    function claim(bytes32[] calldata merkleProof, uint256 amount) external;
 
-    error IncorrectData();
-    error AlreadyClaimed();
+    function release(bytes32 merkleRoot, uint256 amount, bytes calldata data) external;
 }

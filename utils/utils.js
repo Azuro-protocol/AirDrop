@@ -1,14 +1,7 @@
 const { BigNumber } = require("@ethersproject/bignumber");
 
-async function getBlockTime(ethers) {
-  const blockNumBefore = await ethers.provider.getBlockNumber();
-  const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-  const time = blockBefore.timestamp;
-  return time;
-}
-
-function timeout(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function timeout() {
+  return new Promise((resolve) => setTimeout(resolve, 1000));
 }
 
 function tokens(val) {
@@ -16,7 +9,6 @@ function tokens(val) {
 }
 
 module.exports = {
-  getBlockTime,
   timeout,
   tokens,
 };
