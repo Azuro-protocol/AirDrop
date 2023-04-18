@@ -7,13 +7,13 @@ const web3 = require("web3");
 const { tokens } = require("../utils/utils");
 
 const prepareStand = async (ethers, owner) => {
-  Usdt = await ethers.getContractFactory("TestERC20");
-  usdt = await Usdt.deploy();
+  const Usdt = await ethers.getContractFactory("TestERC20");
+  const usdt = await Usdt.deploy();
   await usdt.deployed();
   await usdt.mint(owner.address, tokens(10 ** 12));
 
-  AirDrop = await ethers.getContractFactory("AirDrop");
-  airDrop = await upgrades.deployProxy(AirDrop, [usdt.address]);
+  const AirDrop = await ethers.getContractFactory("AirDrop");
+  const airDrop = await upgrades.deployProxy(AirDrop, [usdt.address]);
   await airDrop.deployed();
 
   await usdt.approve(airDrop.address, tokens(10 ** 12));
@@ -96,7 +96,7 @@ describe("AirDrop test", function () {
     expect(await usdt.balanceOf(airDrop.address)).to.be.equal(tokens(BigNumber.from(0)));
   });
   it("Should NOT release with zero amount", async () => {
-    [_, _, _, _, tree] = await newRelease(16);
+    [,,,, tree] = await newRelease(16);
 
     await expect(release(airDrop, owner, tree.getHexRoot(), 0)).to.be.revertedWith("AmountMustNotBeZero()");
   });
