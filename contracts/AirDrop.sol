@@ -10,8 +10,6 @@ import "./interface/IAirDrop.sol";
 
 /**
  * @notice A contract for airdrop distribution using a Merkle tree.
- *         Tokens are distributed than planned during the airdrop. Additionally, when creating a new airdrop,
- *         any funds that were not distributed in the previous airdrop are used, and the previous airdrop is deleted.
  */
 contract AirDrop is OwnableUpgradeable, IAirDrop {
     IERC20 public token;
@@ -33,6 +31,8 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
 
     /**
      * @notice Release new airdrop of `amount` tokens.
+     * @notice Removes the previous airdrop. Any funds that were not distributed in the previous airdrop will be used
+     *         in the released airdrop.
      * @param  merkleRoot_ The root of the Merkle tree where every leaf is a 52-byte record [address|reward] hashed
      *         with keccak-256 (see https://en.wikipedia.org/wiki/Merkle_tree).                ^20B   ^32B
      * @param  amount Total airdrop amount.
