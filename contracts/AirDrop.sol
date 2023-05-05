@@ -51,12 +51,13 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
         ++nonce;
 
         uint256 balance = token.balanceOf(address(this));
-        TransferHelper.safeTransferFrom(
-            address(token),
-            msg.sender,
-            address(this),
-            amount > balance ? amount - balance : 0
-        );
+        if (amount > balance)
+            TransferHelper.safeTransferFrom(
+                address(token),
+                msg.sender,
+                address(this),
+                amount - balance
+            );
 
         emit Released(amount);
     }
