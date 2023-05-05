@@ -1,0 +1,28 @@
+name: Slither Analysis
+
+on:
+  push:
+    branches:
+      - "stable"
+      - "v**"
+
+  pull_request:
+    branches:
+      - "stable"
+      - "v**"
+
+  workflow_dispatch:
+    
+jobs:
+  slither-analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.2.0
+        id: slither
+        with:
+          fail-on: high
+
