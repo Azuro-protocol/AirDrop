@@ -13,5 +13,9 @@ interface IAirDrop {
 
     function claim(bytes32[] calldata merkleProof, uint256 amount) external;
 
-    function release(bytes32 merkleRoot, uint256 amount, bytes calldata data) external;
+    function release(
+        bytes32 merkleRoot,
+        uint256 amount,
+        bytes calldata data
+    ) external;
 }
