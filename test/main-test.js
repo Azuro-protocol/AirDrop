@@ -92,7 +92,7 @@ describe("AirDrop test", function () {
     expect(await usdt.balanceOf(airDrop.address)).to.be.equal(tokens(BigNumber.from(0)));
   });
   it("Should NOT release with zero amount", async () => {
-    [,,,, tree] = await newRelease(16);
+    [, , , , tree] = await newRelease(16);
 
     await expect(release(airDrop, owner, tree.getHexRoot(), 0)).to.be.revertedWith("AmountMustNotBeZero()");
   });
@@ -122,7 +122,7 @@ describe("AirDrop test", function () {
     it("Should not release with an incorrect rule hash passed", async () => {
       const encoder = new TextEncoder();
       const wrongRrule = encoder.encode("Wrong Test Rule");
-      
+
       const wrongRuleHash = ethers.utils.solidityKeccak256(["bytes"], [wrongRrule]);
       await expect(airDropRuleBased.release(tree.getHexRoot(), dropAmount, wrongRuleHash)).to.be.revertedWith(
         "WrongRuleHash"

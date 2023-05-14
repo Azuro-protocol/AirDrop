@@ -9,7 +9,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   let airDrop, airDropImpl;
 
-  console.log("Deployer wallet: ", deployer.address);
+  console.log("Deployer address: ", deployer.address);
 
   // AirDrop
   const AirDrop = await ethers.getContractFactory("AirDrop");
@@ -20,7 +20,6 @@ async function main() {
 
   const airDropImplAddress = await upgrades.erc1967.getImplementationAddress(airDrop.address);
   airDropImpl = await AirDrop.attach(airDropImplAddress);
-  await airDropImpl.initialize(tokenAddress);
   await timeout();
   console.log("AirDrop implementation deployed at:", airDropImplAddress);
 

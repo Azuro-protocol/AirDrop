@@ -10,7 +10,7 @@ require("web3");
 require("dotenv").config();
 
 const GNOSIS_PRIVATE_KEY = process.env.GNOSIS_PRIVATE_KEY || "";
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
+const GNOSISSCAN_API_KEY = process.env.GNOSISSCAN_API_KEY || "";
 
 const exportNetworks = {
   hardhat: {
@@ -44,7 +44,7 @@ module.exports = {
   defaultNetwork: "hardhat",
   networks: exportNetworks,
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: GNOSISSCAN_API_KEY,
   },
   contractSizer: {
     alphaSort: true,
