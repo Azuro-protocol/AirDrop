@@ -22,6 +22,7 @@ interface IAirDrop {
     error AlreadyClaimed();
     error AmountMustNotBeZero();
     error IncorrectData();
+    error InsufficientContractBalance();
     error InsufficientReleaseBalance();
     error ReleaseDoesNotExist();
     error WrongToken();

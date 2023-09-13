@@ -61,10 +61,24 @@ describe("AirDrop test", function () {
     [owner, user] = await ethers.getSigners();
     [airDrop, usdt] = await prepareStand(ethers, owner);
   });
+  beforeEach(async () => {
+    [rewards, leaves, totalReward, tree] = await newRelease(++releaseId, users);
+    await usdt.connect(owner).transfer(airDrop.address, totalReward);
+    await release(airDrop, owner, tree.getHexRoot(), totalReward);
+  });
+  it("Check owner rights", async () => {
+    await expect(release(airDrop, user, tree.getHexRoot(), totalReward)).to.be.revertedWith(
+      "Ownable: caller is not the owner"
+    );
+    await expect(airDrop.connect(user).withdrawReserve(totalReward)).to.be.revertedWith(
+      "Ownable: caller is not the owner"
+    );
+  });
   it("Should correctly reward users", async () => {
     for (let i = 0; i < 5; i++) {
       [rewards, leaves, totalReward, tree] = await newRelease(++releaseId, users);
 
+      await usdt.connect(owner).transfer(airDrop.address, totalReward);
       await release(airDrop, owner, tree.getHexRoot(), totalReward);
       for (let k = 0; k < users.length; k++) {
         const user = users[k];
@@ -76,16 +90,14 @@ describe("AirDrop test", function () {
           "AlreadyClaimed()"
         );
         expect(await usdt.balanceOf(user.address)).to.be.equal(balance.add(reward));
+        expect(await usdt.balanceOf(airDrop.address)).to.be.equal(await airDrop.lockedReserve());
       }
       console.log("      🌳");
     }
-    expect(await usdt.balanceOf(airDrop.address)).to.be.equal(tokens(BigNumber.from(0)));
   });
   it("Should reward users after new release", async () => {
-    [rewards, leaves, totalReward, tree] = await newRelease(++releaseId, users);
-    await release(airDrop, owner, tree.getHexRoot(), totalReward);
-
     [rewards2, leaves2, totalReward2, tree2] = await newRelease(++releaseId, users);
+    await usdt.connect(owner).transfer(airDrop.address, totalReward2);
     await release(airDrop, owner, tree2.getHexRoot(), totalReward2);
 
     for (let k = 0; k < users.length; k++) {
@@ -101,15 +113,11 @@ describe("AirDrop test", function () {
     }
   });
   it("Should NOT reward for unexciting release", async () => {
-    [rewards, leaves, totalReward, tree] = await newRelease(++releaseId, users);
-    await release(airDrop, owner, tree.getHexRoot(), totalReward);
     await expect(claim(airDrop, users[0], releaseId + 1, tree.getHexProof(leaves[0]), rewards[0])).to.be.revertedWith(
       "ReleaseDoesNotExist"
     );
   });
   it("Should NOT reward with incorrect data", async () => {
-    [rewards, leaves, totalReward, tree] = await newRelease(++releaseId, users);
-    await release(airDrop, owner, tree.getHexRoot(), totalReward);
     await expect(claim(airDrop, users[0], releaseId, tree.getHexProof(leaves[1]), rewards[0])).to.be.revertedWith(
       "IncorrectData"
     );
@@ -121,9 +129,41 @@ describe("AirDrop test", function () {
     );
   });
   it("Should NOT release with zero amount", async () => {
-    [, , , tree] = await newRelease(++releaseId, users);
-
     await expect(release(airDrop, owner, tree.getHexRoot(), 0)).to.be.revertedWith("AmountMustNotBeZero()");
+  });
+  it("Should NOT release with insufficient contract balance", async () => {
+    [rewards, leaves, totalReward, tree] = await newRelease(++releaseId, users);
+
+    await usdt.connect(owner).transfer(airDrop.address, totalReward.sub(1));
+    await expect(release(airDrop, owner, tree.getHexRoot(), totalReward)).to.be.revertedWith(
+      "InsufficientContractBalance"
+    );
+
+    await usdt.connect(owner).transfer(airDrop.address, 1);
+    await release(airDrop, owner, tree.getHexRoot(), totalReward);
+  });
+  it("Should NOT release with locked contract balance", async () => {
+    [rewards, leaves, totalReward, tree] = await newRelease(++releaseId, users);
+    await usdt.connect(owner).transfer(airDrop.address, totalReward);
+    await release(airDrop, owner, tree.getHexRoot(), totalReward);
+
+    [rewards2, leaves2, totalReward2, tree2] = await newRelease(++releaseId, [user]);
+
+    await expect(release(airDrop, owner, tree2.getHexRoot(), totalReward2)).to.be.revertedWith(
+      "InsufficientContractBalance"
+    );
+  });
+  it("Should NOT withdraw reserve with insufficient contract balance", async () => {
+    expect(await usdt.balanceOf(airDrop.address)).to.be.equal(await airDrop.lockedReserve());
+    await expect(airDrop.connect(owner).withdrawReserve(1)).to.be.revertedWith("InsufficientContractBalance");
+  });
+  it("Should NOT claim reward with insufficient release balance", async () => {
+    [rewards, leaves, totalReward, tree] = await newRelease(releaseId, [user]);
+    await usdt.connect(owner).transfer(airDrop.address, totalReward);
+    await release(airDrop, owner, tree.getHexRoot(), totalReward.sub(1));
+    await expect(claim(airDrop, user, releaseId, tree.getHexProof(leaves[0]), totalReward)).to.be.revertedWith(
+      "InsufficientReleaseBalance"
+    );
   });
   context("AirDropRuleBased test", function () {
     let airDropRuleBased;
@@ -146,6 +186,8 @@ describe("AirDrop test", function () {
     });
     it("Check the rule hash set after initialization", async () => {
       expect(await airDropRuleBased.ruleHash()).to.be.equal(ruleHash);
+
+      await usdt.connect(owner).transfer(airDropRuleBased.address, dropAmount);
       await airDropRuleBased.release(tree.getHexRoot(), dropAmount, ruleHash);
     });
     it("Should not release with an incorrect rule hash passed", async () => {
@@ -153,6 +195,8 @@ describe("AirDrop test", function () {
       const wrongRrule = encoder.encode("Wrong Test Rule");
 
       const wrongRuleHash = ethers.utils.solidityKeccak256(["bytes"], [wrongRrule]);
+
+      await usdt.connect(owner).transfer(airDropRuleBased.address, dropAmount);
       await expect(airDropRuleBased.release(tree.getHexRoot(), dropAmount, wrongRuleHash)).to.be.revertedWith(
         "WrongRuleHash"
       );
@@ -164,6 +208,8 @@ describe("AirDrop test", function () {
 
       const newRuleHash = ethers.utils.solidityKeccak256(["bytes"], [newRrule]);
       expect(await airDropRuleBased.ruleHash()).to.be.equal(newRuleHash);
+
+      await usdt.connect(owner).transfer(airDropRuleBased.address, dropAmount);
       await airDropRuleBased.release(tree.getHexRoot(), dropAmount, newRuleHash);
     });
     it("Only owner can set new rule", async () => {

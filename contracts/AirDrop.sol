@@ -18,6 +18,8 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
     IERC20 public token;
     uint256 public lastReleaseId;
 
+    uint256 public lockedReserve;
+
     /**
      * @param  token_ Address of the token used in airdrops.
      */
@@ -43,18 +45,13 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
         bytes calldata data
     ) external virtual onlyOwner {
         if (amount == 0) revert AmountMustNotBeZero();
+        _checkInsufficient(amount);
 
         _beforeRelease(merkleRoot, amount, data);
 
         uint256 releaseId = ++lastReleaseId;
         releases[releaseId] = Release(merkleRoot, amount);
-
-        TransferHelper.safeTransferFrom(
-            address(token),
-            msg.sender,
-            address(this),
-            amount
-        );
+        lockedReserve += amount;
 
         emit Released(releaseId, merkleRoot, amount);
     }
@@ -85,9 +82,20 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
 
         isClaimed[releaseId][msg.sender] = true;
         releases[releaseId].balance = release_.balance - amount;
+        lockedReserve -= amount;
         TransferHelper.safeTransfer(address(token), msg.sender, amount);
 
         emit Claimed(releaseId, msg.sender, amount);
+    }
+
+    /**
+     * @notice Withdraw unlocked token reserves.
+     * @param  amount amount to withdraw
+     */
+    function withdrawReserve(uint256 amount) external onlyOwner {
+        _checkInsufficient(amount);
+
+        TransferHelper.safeTransfer(address(token), msg.sender, amount);
     }
 
     /**
@@ -98,4 +106,12 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
         uint256 amount,
         bytes calldata data
     ) internal virtual {}
+
+    /**
+     * @notice Throw if the contract free reserves of tokens `tokens` are less than `amount`.
+     */
+    function _checkInsufficient(uint256 amount) internal view {
+        if (token.balanceOf(address(this)) < lockedReserve + amount)
+            revert InsufficientContractBalance();
+    }
 }
