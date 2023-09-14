@@ -32,8 +32,6 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
 
     /**
      * @notice Release new airdrop of `amount` tokens.
-     * @notice Removes the previous airdrop. Any funds that were not distributed in the previous airdrop will be used
-     *         in the released airdrop.
      * @param  merkleRoot The root of the Merkle tree where every leaf is a 52-byte record [releaseId|address|reward]
      *         hashed with keccak-256 (see https://en.wikipedia.org/wiki/Merkle_tree).        ^32B      ^20B   ^32B
      * @param  amount Total airdrop amount.
