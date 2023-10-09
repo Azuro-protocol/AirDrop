@@ -112,6 +112,33 @@ describe("AirDrop test", function () {
       expect(await usdt.balanceOf(user.address)).to.be.equal(balance.add(reward).add(reward2));
     }
   });
+  it("Should reward users after new release using batching claim method", async () => {
+    [rewards2, leaves2, totalReward2, tree2] = await newRelease(++releaseId, users);
+    await usdt.connect(owner).transfer(airDrop.address, totalReward2);
+    await release(airDrop, owner, tree2.getHexRoot(), totalReward2);
+
+    for (let k = 0; k < users.length; k++) {
+      const user = users[k];
+      const reward = rewards[k];
+      const reward2 = rewards2[k];
+      const balance = await usdt.balanceOf(user.address);
+
+      const claimData = [];
+      claimData.push({
+        releaseId: releaseId - 1,
+        merkleProof: tree.getHexProof(leaves[k]),
+        amount: reward,
+      });
+      claimData.push({
+        releaseId: releaseId,
+        merkleProof: tree2.getHexProof(leaves2[k]),
+        amount: reward2,
+      });
+
+      await airDrop.connect(user).claimBatch(claimData);
+      expect(await usdt.balanceOf(user.address)).to.be.equal(balance.add(reward).add(reward2));
+    }
+  });
   it("Should NOT reward for unexciting release", async () => {
     await expect(claim(airDrop, users[0], releaseId + 1, tree.getHexProof(leaves[0]), rewards[0])).to.be.revertedWith(
       "ReleaseDoesNotExist"
