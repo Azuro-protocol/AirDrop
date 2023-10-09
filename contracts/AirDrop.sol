@@ -55,6 +55,14 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
     }
 
     /**
+     * @notice The batch version of {IAirDrop.claim}.
+     */
+    function claimBatch(ClaimData[] calldata data) external override {
+        for (uint256 i = 0; i < data.length; ++i)
+            claim(data[i].releaseId, data[i].merkleProof, data[i].amount);
+    }
+
+    /**
      * @notice Get `amount` of tokens from the airdrop `releaseId`.
      * @param  releaseId The ID of the airdrop.
      * @param  merkleProof Merkle's proof of rewarding `msg.sender` with `amount` of tokens in the airdrop `releaseId`
@@ -65,7 +73,7 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
         uint256 releaseId,
         bytes32[] calldata merkleProof,
         uint256 amount
-    ) external override {
+    ) public override {
         Release memory release_ = releases[releaseId];
         if (release_.merkleRoot == bytes32(0)) revert ReleaseDoesNotExist();
         if (

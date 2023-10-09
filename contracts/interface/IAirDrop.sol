@@ -3,6 +3,12 @@
 pragma solidity ^0.8.19;
 
 interface IAirDrop {
+    struct ClaimData {
+        uint256 releaseId;
+        bytes32[] merkleProof;
+        uint256 amount;
+    }
+
     struct Release {
         bytes32 merkleRoot;
         uint256 balance;
@@ -26,6 +32,8 @@ interface IAirDrop {
     error InsufficientReleaseBalance();
     error ReleaseDoesNotExist();
     error WrongToken();
+
+    function claimBatch(ClaimData[] calldata data) external;
 
     function claim(
         uint256 releaseId,
