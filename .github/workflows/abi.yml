@@ -1,0 +1,52 @@
+name: ABIs publishing
+
+on:
+  push:
+    branches:
+      - "v**"
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.2
+
+      - name: Install nodejs
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Install packages
+        run: npm i
+
+      - name: Compile contracts
+        run: npm run compile
+
+      - name: Install apt packages
+        run: sudo apt-get install -yq jq
+
+      - name: Move required builded ABIs
+        shell: bash
+        run: |
+          set +e
+          mkdir -p ./out
+          jq -r '.abi' ./artifacts/contracts/AirDrop.sol/AirDrop.json > ./out/AirDrop.json
+          jq -r '.abi' ./artifacts/contracts/AirDropRuleBased.sol/AirDropRuleBased.json > ./out/AirDropRuleBased.json
+
+      - name: Publish ABIs
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.GHCR_PAT }}
+          publish_branch: main
+          publish_dir: ./out
+          external_repository: azuro-protocol/public-config
+          destination_dir: abis/eth/airdrop/${{ steps.branch-name.outputs.current_branch }}
+          keep_files: true
