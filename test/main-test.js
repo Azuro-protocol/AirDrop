@@ -211,7 +211,13 @@ describe("AirDrop test", function () {
 
     // stop first release
     const balance1 = await usdt.balanceOf(user1.address);
+    const nonDistributed = (await airDrop.releases(firstRelease)).balance;
+    const lockedReserveBeforeStop = await airDrop.lockedReserve();
+
     await airDrop.connect(owner).stopRelease(firstRelease);
+
+    expect(await airDrop.lockedReserve()).to.be.eq(lockedReserveBeforeStop.sub(nonDistributed));
+    expect((await airDrop.releases(firstRelease)).balance).to.be.eq(0);
 
     await expect(claim(airDrop, user1, firstRelease, tree.getHexProof(leaves[1]), rewards[1])).to.be.revertedWith(
       "InsufficientReleaseBalance"
