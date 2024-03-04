@@ -24,6 +24,7 @@ interface IAirDrop {
         bytes32 merleRoot,
         uint256 amount
     );
+    event Stopped(uint256 indexed releaseId, uint256 releaseBalance);
 
     error AlreadyClaimed();
     error AmountMustNotBeZero();
@@ -32,6 +33,7 @@ interface IAirDrop {
     error InsufficientReleaseBalance();
     error ReleaseDoesNotExist();
     error WrongToken();
+    error ReleaseWithdrawn();
 
     function claimBatch(ClaimData[] calldata data) external;
 
@@ -46,4 +48,6 @@ interface IAirDrop {
         uint256 amount,
         bytes calldata data
     ) external;
+
+    function stopRelease(uint256 releaseId) external;
 }

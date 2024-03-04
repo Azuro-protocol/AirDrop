@@ -95,6 +95,20 @@ contract AirDrop is OwnableUpgradeable, IAirDrop {
     }
 
     /**
+     * @notice Stop airdrop of tokens from the `releaseId`.
+     * @param  releaseId The ID of the airdrop to be stoped.
+     */
+    function stopRelease(uint256 releaseId) external onlyOwner {
+        uint256 releaseBalance = releases[releaseId].balance;
+        if (releaseBalance == 0) revert ReleaseWithdrawn();
+
+        releases[releaseId].balance = 0;
+        lockedReserve -= releaseBalance;
+
+        emit Stopped(releaseId, releaseBalance);
+    }
+
+    /**
      * @notice Withdraw unlocked token reserves.
      * @param  amount amount to withdraw
      */
