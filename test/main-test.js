@@ -192,6 +192,41 @@ describe("AirDrop test", function () {
       "InsufficientReleaseBalance"
     );
   });
+  it("Should NOT claim stopped reward", async () => {
+    const user0 = users[0];
+    const user1 = users[1];
+    let firstRelease = releaseId;
+    let secondRelease = ++releaseId;
+
+    [rewards2, leaves2, totalReward2, tree2] = await newRelease(secondRelease, users);
+    await usdt.connect(owner).transfer(airDrop.address, totalReward2);
+    await release(airDrop, owner, tree2.getHexRoot(), totalReward2);
+
+    const balance0 = await usdt.balanceOf(user0.address);
+
+    await claim(airDrop, user0, firstRelease, tree.getHexProof(leaves[0]), rewards[0]);
+    await claim(airDrop, user0, secondRelease, tree2.getHexProof(leaves2[0]), rewards2[0]);
+
+    expect(await usdt.balanceOf(user0.address)).to.be.equal(balance0.add(rewards[0]).add(rewards2[0]));
+
+    // stop first release
+    const balance1 = await usdt.balanceOf(user1.address);
+    const nonDistributed = (await airDrop.releases(firstRelease)).balance;
+    const lockedReserveBeforeStop = await airDrop.lockedReserve();
+
+    await airDrop.connect(owner).stopRelease(firstRelease);
+
+    expect(await airDrop.lockedReserve()).to.be.eq(lockedReserveBeforeStop.sub(nonDistributed));
+    expect((await airDrop.releases(firstRelease)).balance).to.be.eq(0);
+
+    await expect(claim(airDrop, user1, firstRelease, tree.getHexProof(leaves[1]), rewards[1])).to.be.revertedWith(
+      "InsufficientReleaseBalance"
+    );
+    await claim(airDrop, user1, secondRelease, tree2.getHexProof(leaves2[1]), rewards2[1]);
+    expect(await usdt.balanceOf(user1.address)).to.be.equal(balance1.add(rewards2[1]));
+
+    await expect(airDrop.connect(owner).stopRelease(firstRelease)).to.be.revertedWith("ReleaseWithdrawn");
+  });
   context("AirDropRuleBased test", function () {
     let airDropRuleBased;
     let rule, ruleHash;
