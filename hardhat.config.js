@@ -12,6 +12,9 @@ require("dotenv").config();
 const GNOSIS_PRIVATE_KEY = process.env.GNOSIS_PRIVATE_KEY || "";
 const GNOSISSCAN_API_KEY = process.env.GNOSISSCAN_API_KEY || "";
 
+const POLYGON_PRIVATE_KEY = process.env.POLYGON_PRIVATE_KEY || "";
+const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "";
+
 const exportNetworks = {
   hardhat: {
     accounts: {
@@ -25,6 +28,12 @@ if (GNOSIS_PRIVATE_KEY != "") {
     url: `https://rpc.gnosischain.com/`,
     accounts: [`${GNOSIS_PRIVATE_KEY}`],
   }
+}
+if (POLYGON_PRIVATE_KEY != "") {
+  exportNetworks["polygon"] = {
+    url: "https://polygon-bor-rpc.publicnode.com",
+    accounts: [`${POLYGON_PRIVATE_KEY}`],
+  };
 }
 
 module.exports = {
@@ -44,7 +53,10 @@ module.exports = {
   defaultNetwork: "hardhat",
   networks: exportNetworks,
   etherscan: {
-    apiKey: GNOSISSCAN_API_KEY,
+    apiKey: {
+      gnosis: GNOSISSCAN_API_KEY,
+      polygon: POLYGONSCAN_API_KEY,
+    },
   },
   contractSizer: {
     alphaSort: true,
